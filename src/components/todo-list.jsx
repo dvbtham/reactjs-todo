@@ -4,32 +4,38 @@ import Filter from './filter';
 import TodoItem from './todo-item';
 
 export default class TodoList extends Component {
-	state = {todos: []};
+	state = {todos: [], filterResult: []};
 
 	render() {
 		const filters = (
 			<React.Fragment>
-				<Filter filterText="All" />
-			  <Filter filterText="Active" source={this.state.todos} />
-			  <Filter filterText="Compeleted" />
+				<Filter filterText="All"
+        filterTask={() => this.filterTask(null)}/>
+			  <Filter filterText="Active"
+          filterTask={() => this.filterTask(false)} />
+			  <Filter filterText="Compeleted"
+          filterTask={() => this.filterTask(true)}/>
 			</React.Fragment>);
 		return (
 			<React.Fragment>
-				<Header handleAddBtnClick={this.handleAddBtnClick} filters={filters} />				
+				<Header handleAddBtnClick={this.handleAddBtnClick} filters={filters} />
 				<ul>
-				  {this.state.todos.map((todo) => 
+				  {this.state.todos.map((todo) =>
 				  	<TodoItem toggleTodoStatus={this.toggleTodoStatus}
 				  	  key={todo.id} todo={todo} handleDelete={this.handleDelete} />
 				  )}
 				</ul>
-			</React.Fragment>			
+			</React.Fragment>
 		);
 	}
 
-	filterItem = () => {
-    const todoItems = this.state.todos.filter(x => x.isCompleted === false);
-    this.setState({todos: todoItems});
-    console.log(todoItems, 'YES');
+	filterTask = (status) => {
+    let data;
+    if (status === null)
+      data = this.state.filterResult;
+    else
+      data = this.state.filterResult.filter(x => x.isCompleted === status);
+    this.setState({todos: data});
 	}
 
 	handleAddBtnClick = (value) => {
@@ -38,9 +44,10 @@ export default class TodoList extends Component {
   		return;
   	}
   	let todoItems = this.state.todos;
-		let nextId = this.getNextId(todoItems);  	
+		let nextId = this.getNextId(todoItems);
   	todoItems.push({id: nextId, value: value, isCompleted: false});
-  	this.setState({todos: todoItems});
+    this.setState({todos: todoItems});
+  	this.setState({filterResult: todoItems});
   }
 
   handleDelete = (id) => {
